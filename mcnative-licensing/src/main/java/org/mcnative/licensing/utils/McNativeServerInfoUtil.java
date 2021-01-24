@@ -1,22 +1,21 @@
 package org.mcnative.licensing.utils;
 
-import org.mcnative.licensing.ServerInfo;
+import org.mcnative.licensing.context.LicenseContextBuilder;
 import org.mcnative.runtime.api.McNative;
 import org.mcnative.runtime.api.McNativeConsoleCredentials;
-import org.mcnative.runtime.api.rollout.RolloutConfiguration;
-import org.mcnative.runtime.api.rollout.RolloutProfile;
-
-import java.io.File;
+import org.mcnative.runtime.api.loader.LoaderConfiguration;
 
 public class McNativeServerInfoUtil {
 
-    public static ServerInfo getDefaultServerInfo(File basePath,String name){
-        RolloutConfiguration configuration = McNative.getInstance().getRolloutConfiguration();
-        RolloutProfile profile = configuration.getProfile(name);
+    public static void initializeContext(LicenseContextBuilder context){
         McNativeConsoleCredentials identifier = McNative.getInstance().getConsoleCredentials();
-        return new ServerInfo(new File(basePath,"license.dat")
-                ,"https://"+profile.getServer()+"/v1/licenses/{resourceId}/checkout"
-                ,identifier.getNetworkId(),identifier.getSecret());
+        LoaderConfiguration configuration = McNative.getInstance().getRolloutConfiguration();
+
+        String licenseServer = "https://" + configuration.getEndpoint() + "/v1/licenses/{resourceId}/checkout";
+
+        context.licenseServer(licenseServer);
+        context.networkId(identifier.getNetworkId());
+        context.networkSecret(identifier.getSecret());
     }
 
 }

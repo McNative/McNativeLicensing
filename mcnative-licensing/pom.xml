@@ -39,14 +39,7 @@
         <dependency>
             <groupId>org.mcnative.runtime.api</groupId>
             <artifactId>mcnative-runtime-api</artifactId>
-            <version>1.0.2.9-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.pretronic.libraries</groupId>
-            <artifactId>pretroniclibraries-utility</artifactId>
-            <version>${dependency.pretronic.libraries}</version>
+            <version>${dependency.mcnative.api}</version>
             <scope>provided</scope>
         </dependency>
 

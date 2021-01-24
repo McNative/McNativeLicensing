@@ -48,7 +48,7 @@
         <dependency.bungeecord.version>1.16-R0.4-SNAPSHOT</dependency.bungeecord.version>
         <dependency.bukkit.version>1.14.2-R0.1-SNAPSHOT</dependency.bukkit.version>
 
-        <dependency.mcnative.api>1.0.2.9-SNAPSHOT</dependency.mcnative.api>
+        <dependency.mcnative.api>1.0.18.25-SNAPSHOT</dependency.mcnative.api>
 
         <dependency.pretronic.libraries>1.2.37.175-SNAPSHOT</dependency.pretronic.libraries>
         <dependency.pretronic.databasequery>1.2.53.80-SNAPSHOT</dependency.pretronic.databasequery>

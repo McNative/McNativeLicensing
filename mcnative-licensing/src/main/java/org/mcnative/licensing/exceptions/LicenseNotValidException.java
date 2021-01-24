@@ -5,8 +5,8 @@ package org.mcnative.licensing.exceptions;
  */
 public class LicenseNotValidException extends RuntimeException{
 
-    public LicenseNotValidException() {
-        super("Resource license is not valid");
+    public LicenseNotValidException(String message) {
+        super(message);
     }
 
     public LicenseNotValidException(Exception exception) {

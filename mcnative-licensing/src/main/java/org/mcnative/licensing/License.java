@@ -20,8 +20,7 @@
 
 package org.mcnative.licensing;
 
-import net.pretronic.libraries.utility.SystemInfo;
-import net.pretronic.libraries.utility.io.FileUtil;
+import org.mcnative.licensing.utils.LicenseUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -127,7 +126,7 @@ public class License {
 
         return getResourceId().equals(resourceId)
                 && getExpiry() > System.currentTimeMillis()
-                && getDeviceId().equals(SystemInfo.getDeviceId())
+                && getDeviceId().equals(LicenseUtil.getDeviceId())
                 && signatureTool.verify(this.signature);
     }
 
@@ -149,7 +148,7 @@ public class License {
      * @throws IOException If the license could not be read
      */
     public static License read(File file) throws IOException{
-        return read(FileUtil.readContent(file));
+        return read(LicenseUtil.readAllText(file));
     }
 
     /**

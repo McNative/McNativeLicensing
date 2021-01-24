@@ -1,15 +1,15 @@
 package org.mcnative.licensing;
 
-import net.pretronic.libraries.utility.SystemInfo;
-import net.pretronic.libraries.utility.Validate;
-import net.pretronic.libraries.utility.io.IORuntimeException;
+import org.mcnative.licensing.context.LicenseContext;
 import org.mcnative.licensing.exceptions.CloudNotCheckoutLicenseException;
 import org.mcnative.licensing.exceptions.LicenseNotValidException;
+import org.mcnative.licensing.utils.LicenseUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class LicenseVerifier {
@@ -17,16 +17,14 @@ public class LicenseVerifier {
     /**
      * Read and verify a license.
      *
-     * @param resourceId The id of the resource for witch the license was issued
-     * @param publicKey The public key to validate the signature
-     * @param info The server data
+     * @param context The license context
      * @return The verified license details
      */
-    public static License verify(String resourceId, String publicKey,ServerInfo info){
-        Validate.notNull(info.getLicenseLocation());
+    public static License verify(LicenseContext context){
+        Objects.requireNonNull(context.getLicenseDatLocation());
         try{
-            License license = License.read(info.getLicenseLocation());
-            if(!license.verify(resourceId,publicKey)) throw new LicenseNotValidException();
+            License license = License.read(context.getLicenseDatLocation());
+            if(!license.verify(context.getResourceId(),context.getPublicKey())) throw new LicenseNotValidException("Invalid license");
             return license;
         }catch (Exception exception){
             throw new LicenseNotValidException(exception);
@@ -36,40 +34,47 @@ public class LicenseVerifier {
     /**
      * Read and check a license, if the license is not available, a new license is fetched from the license server.
      *
-     * @param resourceId The id of the resource for witch the license was issued
-     * @param publicKey The public key to validate the signature
-     * @param info The server data
+     * @param context The license context
      * @return The verified license details
      */
-    public static License verifyOrCheckout(String resourceId, String publicKey,ServerInfo info){
+    public static License verifyOrCheckout(LicenseContext context){
         try{
             License license = null;
-            if(info.getLicenseLocation().exists()){
-                license = License.read(info.getLicenseLocation());
+            if(context.getLicenseDatLocation().exists()){
+                license = License.read(context.getLicenseDatLocation());
                 if(license.shouldRefresh()){
                     try {
-                        license = checkout(resourceId,info);
-                    }catch (IllegalArgumentException | IORuntimeException ignored){}
+                        license = checkout(context);
+                    }catch (IllegalArgumentException ignored){}
                 }
             }
-            if(license == null) license = checkout(resourceId,info);
-            if(!license.verify(resourceId,publicKey)) throw new LicenseNotValidException();
+            if(license == null) license = checkout(context);
+            if(!license.verify(context.getResourceId(),context.getPublicKey())) throw new LicenseNotValidException("Invalid license");
             return license;
         }catch (Exception exception){
             throw new LicenseNotValidException(exception);
         }
     }
 
-    private static License checkout(String resourceId, ServerInfo info){
+    private static License checkout(LicenseContext context){
+        if(context.getLicenseKey() == null && (context.getNetworkId() == null || context.getNetworkSecret() == null)){
+            throw new LicenseNotValidException("Missing authorization data (Provide a license key or McNative console credentials)");
+        }
+
         CertificateValidation.disable();
         try {
-            HttpURLConnection connection = (HttpURLConnection)new URL(info.getLicenseServer().replace("{resourceId}",resourceId)).openConnection();
+            HttpURLConnection connection = (HttpURLConnection)new URL(context.getLicenseServer().replace("{resourceId}",context.getResourceId())).openConnection();
             connection.setDoOutput(true);
             connection.setRequestProperty("Accept-Charset", "UTF-8");
 
-            connection.setRequestProperty("DeviceId", SystemInfo.getDeviceId());
-            connection.setRequestProperty("ServerId",info.getServerId());
-            connection.setRequestProperty("serverSecret",info.getServerSecret());
+            connection.setRequestProperty("DeviceId", LicenseUtil.getDeviceId());
+
+            if(context.getLicenseKey() != null){
+                connection.setRequestProperty("LicenseKey",context.getLicenseKey());
+            }else{
+                connection.setRequestProperty("NetworkId",context.getNetworkId());
+                connection.setRequestProperty("NetworkSecret",context.getNetworkSecret());
+            }
 
             if(connection.getResponseCode() != 200){
                 InputStream response = connection.getErrorStream();
@@ -92,11 +97,11 @@ public class LicenseVerifier {
             }
 
             License license = License.read(content);
-            license.save(info.getLicenseLocation());
+            license.save(context.getLicenseDatLocation());
             response.close();
             return license;
         } catch (IOException e) {
-            throw new IORuntimeException(e);
+            throw new IllegalArgumentException("Connection failed",e);
         }finally {
             CertificateValidation.reset();
         }
