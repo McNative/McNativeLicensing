@@ -14,7 +14,7 @@ public class McNativeRuntime {
      */
     public static boolean isAvailable(){
         try{
-            Class<?> clazz = Class.forName("org.mcnative.common.McNative");
+            Class<?> clazz = Class.forName("org.mcnative.runtime.api.McNative");
             Method isAvailable = clazz.getDeclaredMethod("isAvailable");
             if((boolean)isAvailable.invoke(null)) return true;
         }catch (Exception ignored){}
