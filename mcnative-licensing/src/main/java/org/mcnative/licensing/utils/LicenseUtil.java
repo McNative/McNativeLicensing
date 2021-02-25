@@ -50,13 +50,8 @@ public class LicenseUtil {
                 if (networkInterface.getHardwareAddress() != null) {
                     buffer.writeBytes(networkInterface.getHardwareAddress());
                 }
-
-                for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
-                    buffer.writeShort(interfaceAddress.getNetworkPrefixLength());
-                    buffer.writeBytes(interfaceAddress.getAddress().getAddress());
-                }
             }
-
+            
             byte[] result = new byte[buffer.readableBytes()];
             buffer.readBytes(result);
             return Base64.getEncoder().encodeToString(result);
