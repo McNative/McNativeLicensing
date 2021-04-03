@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Base64;
 import java.util.Enumeration;
@@ -15,7 +16,7 @@ import java.util.Enumeration;
 public class LicenseUtil {
 
     public static String readAllText(File file) {
-        return readAllText(file, Charset.defaultCharset());
+        return readAllText(file, StandardCharsets.UTF_8);
     }
 
     public static String readAllText(File file, Charset charset) {
@@ -51,7 +52,7 @@ public class LicenseUtil {
                     buffer.writeBytes(networkInterface.getHardwareAddress());
                 }
             }
-            
+
             byte[] result = new byte[buffer.readableBytes()];
             buffer.readBytes(result);
             return Base64.getEncoder().encodeToString(result);
