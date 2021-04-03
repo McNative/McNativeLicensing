@@ -9,7 +9,7 @@ public class McNativeServerInfoUtil {
 
     public static void initializeContext(LicenseContextBuilder context){
         LoaderConfiguration configuration = McNative.getInstance().getRolloutConfiguration();
-        Fi
+
         String licenseServer = "https://" + configuration.getEndpoint() + "/v1/licenses/{resourceId}/checkout";
         context.licenseServer(licenseServer);
 
