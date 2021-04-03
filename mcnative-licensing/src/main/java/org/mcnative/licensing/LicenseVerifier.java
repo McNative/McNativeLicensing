@@ -46,6 +46,7 @@ public class LicenseVerifier {
                     try {
                         license = checkout(context);
                     }catch (IllegalArgumentException ignored){}
+                    if(!license.verify(context.getResourceId(),context.getPublicKey())) license = null;
                 }
             }
             if(license == null) license = checkout(context);
